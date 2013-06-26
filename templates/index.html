@@ -123,6 +123,8 @@ google.maps.event.addDomListener(window, 'load', initialize);
         <p>
           Using Python, NumPy, Pandas, MatPlotlib, and google maps I have built some visualizations.  All of my base data is from the citibike data feed <a href="https://citibikenyc.com/stations/json">stations.json</a>.  This feed lists all stations, their latitude/longitude, total number of docks, and number of available docks.  It only lists the current data.  I have been polling this feed and saving it once per minute since about day 3 of the citibike program.  This data isn't exactly what I want, but it is enough to play with.  It would be much better if I had information about each trip (start time, start station, end time end station), citibike hasn't published that data yet.
         </p>
+        <p> The source code for this site is up at <a href="https://github.com/paddymul/citibike_data">citibike_data repo </a>.  There is also an executable IPython notebook up at <a href="https://www.wakari.io/sharing/bundle/paddy/citibike_data_intro">Citibike_data_intro Notebook</a> on Wakari.io.
+</<p> 
         <div id="station_summaries">
           {% for station_id, station in sbid.items() %}
             <div style="display:none" class="station" id="s{{station_id}}">
