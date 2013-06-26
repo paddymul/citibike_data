@@ -1,1 +1,1 @@
-{"description": "an introduction to manipulating citibike data with Pandas", "notebooks": ["citibike_data_intro.ipynb"], "envfile": null, "public": true, "name": "citibike_data_intro"}
+{"notebooks": ["citibike_data_intro.ipynb"], "envfile": null, "description": "an introduction to manipulating citibike data with Pandas", "name": "citibike_data_intro", "public": true}

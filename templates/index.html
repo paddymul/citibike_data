@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>citibike data</title>
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
+    <meta charset="utf-8">
+    <link href="/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+
+
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script src="/static/js/jquery-2.0.2.min.js"></script>
+    <script src="/static/js/underscore.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.js"></script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-41810904-1', 'citibikedata.com');
+  ga('send', 'pageview');
+
+</script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41810904-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+    <script>
+function initialize() {
+  var mapOptions = {
+    zoom: 13,
+    center: new google.maps.LatLng(40.73047747, -73.99906065),
+    mapTypeId: google.maps.MapTypeId.ROADMAP
+  };
+  window.marker_map = {}
+  window.last_set = "";
+  window.default_icon = "http://labs.google.com/ridefinder/images/mm_20_brown.png";
+
+  var map = new google.maps.Map(document.getElementById('map-canvas'),
+      mapOptions);
+
+  var marker = new google.maps.Marker({
+    position: map.getCenter(),
+    map: map,
+    title: 'Click to zoom',
+    icon : default_icon
+  });
+
+  google.maps.event.addListener(marker, 'click', function() {
+    //map.setZoom(8);
+    map.setCenter(marker.getPosition());
+  });
+  function unhighlightMarker(id_){
+      try {
+        var marker = marker_map[id_]
+        $(".station").hide();
+        marker.setIcon(default_icon);
+        marker_map[marker.close1].setIcon(default_icon);
+        marker_map[marker.close2].setIcon(default_icon);
+        marker_map[marker.close3].setIcon(default_icon);
+     } catch(e){};
+  };
+  
+  function highlightMarker(id_){
+
+      unhighlightMarker(last_set);
+      var marker = marker_map[id_]
+      map.setCenter(marker.getPosition());
+      $(".station").hide();
+      $("#" + id_).show();
+      marker.setIcon('http://labs.google.com/ridefinder/images/mm_20_blue.png');
+      marker_map[marker.close1].setIcon('http://labs.google.com/ridefinder/images/mm_20_red.png');
+      marker_map[marker.close2].setIcon('http://labs.google.com/ridefinder/images/mm_20_red.png');
+      marker_map[marker.close3].setIcon('http://labs.google.com/ridefinder/images/mm_20_red.png');
+      last_set=id_;
+  };
+
+  window.addPoint = function (lat, long, id_, close1, close2, close3){
+    var ll = new google.maps.LatLng(lat, long);
+    var marker = new google.maps.Marker({
+        position: ll,
+        map: map,
+        title: 'Click to zoom',
+        icon: default_icon
+
+    });
+    marker.close1 = close1;
+    marker.close2 = close2;
+    marker.close3 = close3;
+    marker_map[id_] = marker;
+    google.maps.event.addListener(marker, 'click', function() {
+       highlightMarker(id_);
+    });
+  };
+  {% for s_id, station in sbid.items() %}
+    addPoint({{station.latitude}}, {{station.longitude}}, "s{{s_id}}", 
+      "s{{station.closest_stations[1]}}", 
+      "s{{station.closest_stations[2]}}", "s{{station.closest_stations[3]}}");
+  {% endfor %}
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+
+    </script>
+  </head>
+  <body>
+    <div class="row">
+      <div class="span4" style="border:1px solid green; padding:5px">
+
+        <p>
+          Hi I'm Paddy Mullen.  If you are seeing this website in this state, hopefully you are a friend.  I work for <a href="http://www.continuum.io/">Continuum Analytics</a> where I'm on the <a href="http://wakari.io">Wakari</a> data analysis platform team.  I'm a huge transit and biking fan so I decided to play with the data from the <a href="https://citibikenyc.com/">citibike nyc</a> data.  
+        </p>
+        <p>
+          Using Python, NumPy, Pandas, MatPlotlib, and google maps I have built some visualizations.  All of my base data is from the citibike data feed <a href="https://citibikenyc.com/stations/json">stations.json</a>.  This feed lists all stations, their latitude/longitude, total number of docks, and number of available docks.  It only lists the current data.  I have been polling this feed and saving it once per minute since about day 3 of the citibike program.  This data isn't exactly what I want, but it is enough to play with.  It would be much better if I had information about each trip (start time, start station, end time end station), citibike hasn't published that data yet.
+        </p>
+        <div id="station_summaries">
+          {% for station_id, station in sbid.items() %}
+            <div style="display:none" class="station" id="s{{station_id}}">
+              <a href="/stations/s{{station_id}}.html"> {{sbid[station_id]['stAddress1']}}</a>
+              <dl>
+                
+                <dt>starting trips this hour</dt><dd>{{sbid[station_id].get('starting',{}).get('hour')}}</dd>
+                <dt>starting trips this day</dt><dd>{{sbid[station_id].get('starting',{}).get('day')}}</dd>
+
+                <dt>starting trips this week</dt><dd>{{sbid[station_id].get('starting',{}).get('week')}}</dd>
+                <dt>starting trips all time</dt><dd>{{sbid[station_id].get('starting',{}).get('all')}}</dd>
+                <dt>lat</dt><dd>{{sbid[station_id]['latitude']}}</dd>
+                <dt>long</dt><dd>{{sbid[station_id]['longitude']}}</dd>
+              </dl>
+                {% for station_id in sbid[station_id].closest_stations[1:4] %}
+                  <li><a href="/stations/s{{station_id}}.html"> {{sbid[station_id]['stAddress1']}}</a></li>
+                {% endfor %}
+            </div>
+          {% endfor %}
+        </div>
+
+
+      </div> <!-- close span4 text panel -->
+      <div class="span8" style="border:1px solid red">
+        <ul class="nav nav-tabs">
+          <li><a href="#map" data-toggle="tab">Map</a></li>
+          <li><a href="#hour" data-toggle="tab">Hour</a></li>
+          <li><a href="#day" data-toggle="tab">Day</a></li>
+          <li><a href="#week" data-toggle="tab">Week</a></li>
+          <li><a href="#all" data-toggle="tab">All time</a></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane active" id="map">
+            <div id="map-canvas" style="width: 610px; height: 700px;" ></div>
+          </div>
+          <div class="tab-pane" id="hour">
+            <h2> most active stations in past hour </h2>
+            <ul>
+              {% for station_id in s.popular_starting_stations['hour'][:10] %}
+                {% if sbid[station_id] is defined %}
+                  <li>
+                    <a href="/stations/s{{station_id}}.html">{{sbid[station_id]['stAddress1']}}</a>
+                     {{sbid[station_id]['starting']['hour']}} <span> trips </span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div> <!-- end hour -->
+
+          <div class="tab-pane" id="day">
+            <h2> most active stations in past day </h2>
+            <ul>
+              {% for station_id in s.popular_starting_stations['day'][:10] %}
+                {% if sbid[station_id] is defined %}
+                  <li>
+                    <a href="/stations/s{{station_id}}.html">{{sbid[station_id]['stAddress1']}}</a>
+                     {{sbid[station_id]['starting']['day']}} <span> trips </span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div> <!-- end day -->
+          <div class="tab-pane" id="week">
+            <h2> most active stations in week </h2>
+            <ul>
+              {% for station_id in s.popular_starting_stations['week'][:10] %}
+                {% if sbid[station_id] is defined %}
+                  <li>
+                    <a href="/stations/s{{station_id}}.html">{{sbid[station_id]['stAddress1']}}</a>
+                     {{sbid[station_id]['starting']['week']}} <span> trips </span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div> <!-- end week -->
+          <div class="tab-pane" id="all">
+            <h2> most active stations since system start </h2>
+            <ul>
+              {% for station_id in s.popular_starting_stations['all'][:10] %}
+                {% if sbid[station_id] is defined %}
+                  <li>
+                    <a href="/stations/s{{station_id}}.html">{{sbid[station_id]['stAddress1']}}</a>
+                     {{sbid[station_id]['starting']['all']}} <span> trips </span>
+                  </li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div> <!-- end all -->
+        </div>
+      </div>
+    </div>
+</div>  
+
+   
+        
+
+    <h1> system summary </h1>
+       <h2> Total trips information </h2>
+       <ul>
+         <li> {{s.total_trips['day']}} trips in last day </li>
+         <li> {{s.total_trips['week']}} trips in last week </li>
+         <li> {{s.total_trips['all']}} trips in all time </li>
+       </ul>
+
+
+
+
+  </body>
+</html>

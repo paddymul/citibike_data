@@ -1,0 +1,65 @@
+<html>
+
+  <head>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-41810904-1', 'citibikedata.com');
+  ga('send', 'pageview');
+
+</script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-41810904-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+  </head>
+  <body>
+    <h1> {{s.stAddress1}} </h1>
+    <h3>all time delta </h3>
+    <img src="../plots/{{s.id}}/all.png"/>
+    <h3>all time cumulative sum </h3>
+    <img src="../plots/{{s.id}}/all_cumsum.png"/>
+    <h3>weekly delta</h3>
+    <img src="../plots/{{s.id}}/week.png"/>
+    <h3>weekly cumulative sum </h3>
+    <img src="../plots/{{s.id}}/week_cumsum.png"/>
+    <h3>daily delta </h3>
+    <img src="../plots/{{s.id}}/day.png"/>
+    <h3>daily cumulative sum </h3>
+    <img src="../plots/{{s.id}}/day_cumsum.png"/>
+    <h3>hourly delta </h3>
+    <img src="../plots/{{s.id}}/hour.png"/>
+    <h3>hourly cumulative sum </h3>
+    <img src="../plots/{{s.id}}/hour_cumsum.png"/>
+
+
+    <h3>all time availability </h3>
+    <img src="../plots/{{s.id}}/avail_all.png"/>
+    <h3>weekly availability</h3>
+    <img src="../plots/{{s.id}}/avail_week.png"/>
+    <h3>daily availability </h3>
+    <img src="../plots/{{s.id}}/avail_day.png"/>
+    <h3>hourly availability </h3>
+    <img src="../plots/{{s.id}}/avail_hour.png"/>
+
+    <h2> closest stations </h2>
+    <ul>
+      {% for station_id in s.closest_stations[1:4] %}
+        <li><a href="s{{station_id}}.html"> {{sbid[station_id]['stAddress1']}}</a></li>
+      {% endfor %}
+    </ul>
+
+  </body>
+</html>
